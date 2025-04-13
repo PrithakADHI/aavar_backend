@@ -7,6 +7,7 @@ import User from "../models/User.js";
 import VitalReport from "../models/VitalReport.js";
 import Activities from "../models/Activities.js";
 import Bookings from "../models/Bookings.js";
+import Appointment from "../models/Appointment.js";
 
 const generateAccessToken = (user) => {
   return jwt.sign({ id: user.id }, process.env.SECRET_KEY, { expiresIn: "7d" });
@@ -162,6 +163,9 @@ export const profile = async (req, res) => {
           model: Activities,
           as: "bookedActivities",
           through: { attributes: [] }, // exclude Bookings table fields
+        },
+        {
+          model: Appointment,
         },
       ],
     });
