@@ -11,6 +11,7 @@ import {
   readAllAppointments,
   createAppointment,
   readDashboard,
+  bookActivity,
 } from "../controllers/userController.js";
 
 import { profile } from "../controllers/authController.js";
@@ -32,5 +33,11 @@ userRouter.get("/user/appointments", authenticateUser, readAllAppointments);
 userRouter.post("/user/appointments", authenticateUser, createAppointment);
 
 userRouter.get("/user/profile", authenticateUser, profile);
+
+userRouter.post(
+  "/user/book_activity/:activityId",
+  authenticateUser,
+  bookActivity
+);
 
 export default userRouter;

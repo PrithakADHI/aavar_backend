@@ -2,6 +2,7 @@ import VitalReport from "../models/VitalReport.js";
 import Doctor from "../models/Doctor.js";
 import Activities from "../models/Activities.js";
 import Appointment from "../models/Appointment.js";
+import User from "../models/User.js";
 
 // Everything at one place for Dashboard
 
@@ -226,6 +227,33 @@ export const createAppointment = async (req, res) => {
     });
 
     return res.status(201).json({ success: true, appointment: newAppointment });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.status(500).json({ message: `Error: ${err.message}` });
+  }
+};
+
+export const bookActivity = async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId);
+    const activity = await Activities.findByPk(activityId);
+
+    if (!user || !activity) {
+      return res.status(404).json({ message: "User or Activity not found" });
+    }
+
+    // Check if already booked (optional)
+    const alreadyBooked = await user.hasBookedActivity(activity);
+    if (alreadyBooked) {
+      return res.status(400).json({ message: "Activity already booked" });
+    }
+
+    await user.addBookedActivity(activity);
+
+    return res.status(200).json({ message: "Activity booked successfully" });
   } catch (err) {
     console.error(`Error: ${err.message}`);
     return res.status(500).json({ message: `Error: ${err.message}` });

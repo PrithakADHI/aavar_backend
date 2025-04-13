@@ -93,8 +93,9 @@ const Doctor = sequelize.define(
       allowNull: true,
     },
 
-    verified: {
-      type: DataTypes.BOOLEAN,
+    verification: {
+      type: DataTypes.ENUM("verified", "pending", "unverified"),
+      defaultValue: "pending",
       allowNull: true,
     },
 

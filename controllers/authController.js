@@ -5,6 +5,8 @@ import passport from "passport";
 import LocalStrategy from "passport-local";
 import User from "../models/User.js";
 import VitalReport from "../models/VitalReport.js";
+import Activities from "../models/Activities.js";
+import Bookings from "../models/Bookings.js";
 
 const generateAccessToken = (user) => {
   return jwt.sign({ id: user.id }, process.env.SECRET_KEY, { expiresIn: "7d" });
@@ -152,12 +154,28 @@ export const profile = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized user" });
     }
 
+    // Get full user info with booked activities
+    const fullUser = await User.findByPk(user.id, {
+      attributes: { exclude: ["password"] }, // optional: hide password
+      include: [
+        {
+          model: Activities,
+          as: "bookedActivities",
+          through: { attributes: [] }, // exclude Bookings table fields
+        },
+      ],
+    });
+
+    // Get latest vital report
     const latestReport = await VitalReport.findOne({
       where: { userId: user.id },
       order: [["createdAt", "DESC"]],
     });
 
-    return res.status(200).json({ user, latestReport });
+    return res.status(200).json({
+      user: fullUser,
+      latestReport,
+    });
   } catch (err) {
     console.error(`Error: ${err.message}`);
     return res.status(500).json({ message: `Error: ${err.message}` });

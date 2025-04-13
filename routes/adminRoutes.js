@@ -11,6 +11,9 @@ import {
   readOneActivity,
   acceptDoctor,
   rejectDoctor,
+  readAllAcceptedDoctors,
+  readAllPendingDoctors,
+  readAllRejectedDoctors,
 } from "../controllers/adminController.js";
 
 import {
@@ -29,5 +32,9 @@ adminRouter.post("/auth/register", registerAdmin);
 
 adminRouter.post("/doctor/accept/:doctorId", acceptDoctor);
 adminRouter.post("/doctor/reject/:doctorId", rejectDoctor);
+
+adminRouter.get("/doctor/accepted", readAllAcceptedDoctors);
+adminRouter.get("/doctor/rejected", readAllRejectedDoctors);
+adminRouter.get("/doctor/pending", readAllPendingDoctors);
 
 export default adminRouter;

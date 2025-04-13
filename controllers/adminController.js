@@ -72,8 +72,34 @@ export const readOneActivity = async (req, res) => {
 export const readAllAcceptedDoctors = async (req, res) => {
   try {
     const allAcceptedDoctors = await Doctor.findAll({
-      where: { verified: true },
+      where: { verification: "verified" },
     });
+
+    return res.status(200).json({ success: true, data: allAcceptedDoctors });
+  } catch (err) {
+    console.error(`Error ${err.message}`);
+  }
+};
+
+export const readAllPendingDoctors = async (req, res) => {
+  try {
+    const allPendingDoctors = await Doctor.findAll({
+      where: { verification: "pending" },
+    });
+
+    return res.status(200).json({ success: true, data: allPendingDoctors });
+  } catch (err) {
+    console.error(`Error ${err.message}`);
+  }
+};
+
+export const readAllRejectedDoctors = async (req, res) => {
+  try {
+    const allRejectedDoctors = await Doctor.findAll({
+      where: { verification: "verified" },
+    });
+
+    return res.status(200).json({ success: true, data: allRejectedDoctors });
   } catch (err) {
     console.error(`Error ${err.message}`);
   }

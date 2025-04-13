@@ -7,6 +7,7 @@ import Appointment from "./Appointment.js";
 import VitalReport from "./VitalReport.js";
 import Admin from "./Admin.js";
 import Activities from "./Activities.js";
+import Bookings from "./Bookings.js";
 
 // Set up associations here only (AFTER models are defined)
 
@@ -30,6 +31,9 @@ Appointment.belongsTo(User, { foreignKey: "userId" });
 Doctor.hasMany(Appointment, { foreignKey: "doctorId" });
 Appointment.belongsTo(Doctor, { foreignKey: "doctorId" });
 
+User.belongsToMany(Activities, { through: Bookings, as: "bookedActivities" });
+Activities.belongsToMany(User, { through: Bookings, as: "bookedUsers" });
+
 const db = {
   sequelize,
   User,
@@ -38,6 +42,7 @@ const db = {
   VitalReport,
   Admin,
   Activities,
+  Bookings,
 };
 
 export default db;

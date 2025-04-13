@@ -58,7 +58,7 @@ export const registerDoctor = async (req, res) => {
     profilePicture,
     role,
     contactNumber,
-    verified,
+    verification,
     bio,
     perHourPrice,
     rating,
@@ -112,8 +112,7 @@ export const registerDoctor = async (req, res) => {
       citizenshipNumber,
       citizenshipPhotoFront,
       citizenshipPhotoBack,
-      verified,
-      certifications: parsedCertifications,
+      verification,
       password: hashedPassword,
       //   profilePicture: imageUrl,
     });
