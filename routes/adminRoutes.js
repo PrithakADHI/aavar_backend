@@ -24,7 +24,7 @@ import {
 
 const upload = multer();
 
-adminRouter.post("/activity", authenticateAdmin, upload.none(), createActivity);
+adminRouter.post("/activity", upload.none(), createActivity);
 adminRouter.get("/activity", authenticateAdmin, readAllActivities);
 adminRouter.get("/activity/:activityId", authenticateAdmin, readOneActivity);
 

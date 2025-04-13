@@ -12,7 +12,6 @@ export const createActivity = async (req, res) => {
     time,
     category,
     numberOfDays,
-    booked,
   } = req.body;
 
   let { images } = req.body;
@@ -33,7 +32,6 @@ export const createActivity = async (req, res) => {
     category,
     numberOfDays,
     images: parsedImages,
-    booked,
   });
 
   return res

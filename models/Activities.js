@@ -55,10 +55,10 @@ const Activities = sequelize.define(
       allowNull: false,
     },
 
-    // booked: {
-    //   type: DataTypes.BOOLEAN,
-    //   allowNull: false,
-    // },
+    booked: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
   },
   {
     tableName: "activities",
