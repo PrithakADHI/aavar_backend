@@ -10,7 +10,10 @@ import {
   readOneActivity,
   readAllAppointments,
   createAppointment,
+  deleteBooking,
   readDashboard,
+  createAppointmentCheckoutSession,
+  verifyPaymentAndCreateAppointment,
   bookActivity,
 } from "../controllers/userController.js";
 
@@ -38,6 +41,24 @@ userRouter.post(
   "/user/book_activity/:activityId",
   authenticateUser,
   bookActivity
+);
+
+userRouter.delete(
+  "/user/book_activity/:activityId",
+  authenticateUser,
+  deleteBooking
+);
+
+userRouter.post(
+  "/user/appointment/checkout-session",
+  authenticateUser,
+  createAppointmentCheckoutSession
+);
+
+userRouter.post(
+  "/user/appointment/verify-and-create",
+  authenticateUser,
+  verifyPaymentAndCreateAppointment
 );
 
 export default userRouter;

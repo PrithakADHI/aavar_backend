@@ -8,6 +8,7 @@ import VitalReport from "./VitalReport.js";
 import Admin from "./Admin.js";
 import Activities from "./Activities.js";
 import Bookings from "./Bookings.js";
+import Transaction from "./Transaction.js";
 
 // Set up associations here only (AFTER models are defined)
 
@@ -42,6 +43,7 @@ const db = {
   VitalReport,
   Admin,
   Activities,
+  Transaction,
   Bookings,
 };
 

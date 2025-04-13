@@ -13,6 +13,7 @@ import {
   rejectDoctor,
   readAllAcceptedDoctors,
   readAllPendingDoctors,
+  readAllDoctors,
   readAllRejectedDoctors,
 } from "../controllers/adminController.js";
 
@@ -23,18 +24,20 @@ import {
 
 const upload = multer();
 
-adminRouter.post("/activity", upload.none(), createActivity);
-adminRouter.get("/activity", readAllActivities);
-adminRouter.get("/activity/:activityId", readOneActivity);
+adminRouter.post("/activity", authenticateAdmin, upload.none(), createActivity);
+adminRouter.get("/activity", authenticateAdmin, readAllActivities);
+adminRouter.get("/activity/:activityId", authenticateAdmin, readOneActivity);
 
-adminRouter.post("/auth/login", loginAdmin);
-adminRouter.post("/auth/register", registerAdmin);
+adminRouter.post("/auth/login", authenticateAdmin, loginAdmin);
+adminRouter.post("/auth/register", authenticateAdmin, registerAdmin);
 
-adminRouter.post("/doctor/accept/:doctorId", acceptDoctor);
-adminRouter.post("/doctor/reject/:doctorId", rejectDoctor);
+adminRouter.post("/doctor/accept/:doctorId", authenticateAdmin, acceptDoctor);
+adminRouter.post("/doctor/reject/:doctorId", authenticateAdmin, rejectDoctor);
 
-adminRouter.get("/doctor/accepted", readAllAcceptedDoctors);
-adminRouter.get("/doctor/rejected", readAllRejectedDoctors);
-adminRouter.get("/doctor/pending", readAllPendingDoctors);
+// adminRouter.get("/doctor/accepted", readAllAcceptedDoctors);
+// adminRouter.get("/doctor/rejected", readAllRejectedDoctors);
+// adminRouter.get("/doctor/pending", readAllPendingDoctors);
+
+adminRouter.get("/doctors", authenticateAdmin, readAllDoctors);
 
 export default adminRouter;

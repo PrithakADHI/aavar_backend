@@ -69,6 +69,21 @@ export const readOneActivity = async (req, res) => {
   }
 };
 
+export const readAllDoctors = async (req, res) => {
+  try {
+    const allDoctors = await Doctor.findAll({
+      attributes: {
+        exclude: ["password"],
+      },
+    });
+
+    return res.status(200).json({ success: true, data: allDoctors });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.status(500).json({ message: `Error: ${err.message}` });
+  }
+};
+
 export const readAllAcceptedDoctors = async (req, res) => {
   try {
     const allAcceptedDoctors = await Doctor.findAll({
@@ -117,7 +132,7 @@ export const acceptDoctor = async (req, res) => {
         .json({ success: false, message: "Doctor not found" });
     }
 
-    doctor.verified = true;
+    doctor.verification = "verified";
     await doctor.save();
 
     return res.status(200).json({ success: true, data: doctor });
@@ -139,7 +154,7 @@ export const rejectDoctor = async (req, res) => {
         .json({ success: false, message: "Doctor not found" });
     }
 
-    doctor.verified = false;
+    doctor.verification = "unverified";
     await doctor.save();
 
     return res.status(200).json({ success: true, data: doctor });

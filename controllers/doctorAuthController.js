@@ -5,6 +5,10 @@ import passport from "passport";
 import LocalStrategy from "passport-local";
 import Doctor from "../models/Doctor.js";
 
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 const generateAccessToken = (user) => {
   return jwt.sign({ id: user.id }, process.env.SECRET_KEY, { expiresIn: "7d" });
 };
@@ -60,6 +64,7 @@ export const registerDoctor = async (req, res) => {
     contactNumber,
     verification,
     bio,
+    experience,
     perHourPrice,
     rating,
     specialization,
@@ -68,6 +73,10 @@ export const registerDoctor = async (req, res) => {
     citizenshipPhotoFront,
     citizenshipPhotoBack,
   } = req.body;
+
+  const finalPerHourPrice = perHourPrice || 100;
+
+  const amountInCents = Math.round(finalPerHourPrice * 100);
 
   // let { certifications } = req.body;
 
@@ -104,10 +113,11 @@ export const registerDoctor = async (req, res) => {
       role,
       contactNumber,
       profilePicture,
+      experience,
       specialization,
       bio,
       certifications,
-      perHourPrice,
+      perHourPrice: finalPerHourPrice,
       rating,
       citizenshipNumber,
       citizenshipPhotoFront,
@@ -116,6 +126,23 @@ export const registerDoctor = async (req, res) => {
       password: hashedPassword,
       //   profilePicture: imageUrl,
     });
+
+    const product = await stripe.products.create({
+      name: `Consultation with Dr. ${username}`,
+      metadata: { doctorId: newDoctor.id },
+    });
+
+    newDoctor.stripeProductId = product.id;
+
+    const price = await stripe.prices.create({
+      unit_amount: amountInCents,
+      currency: "usd",
+      product: product.id,
+    });
+
+    newDoctor.stripePriceId = price.id;
+
+    await newDoctor.save();
 
     res.status(201).json({
       message: `Doctor ${newDoctor.username} registered successfully.`,

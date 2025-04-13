@@ -4,6 +4,10 @@ import Activities from "../models/Activities.js";
 import Appointment from "../models/Appointment.js";
 import User from "../models/User.js";
 
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 // Everything at one place for Dashboard
 
 export const readDashboard = async (req, res) => {
@@ -209,6 +213,96 @@ export const readAllAppointments = async (req, res) => {
   }
 };
 
+export const createAppointmentCheckoutSession = async (req, res) => {
+  const user = req.user;
+  const { doctorId, address, description, dateOfAppointment } = req.body;
+
+  try {
+    const doctor = await Doctor.findByPk(doctorId);
+    if (!doctor || !doctor.perHourPrice) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "This doctor doesn't currently have the ability to get appointments.",
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: [
+        {
+          price: doctor.stripePriceId,
+          quantity: 1,
+        },
+      ],
+      customer_email: user.email,
+      success_url: `${process.env.CLIENT_URL}/appointment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/appointment-cancel`,
+
+      // ✅ Here's the metadata block
+      metadata: {
+        doctorId: doctorId.toString(),
+        address: address || "",
+        description: description || "",
+        dateOfAppointment: dateOfAppointment || "",
+      },
+    });
+
+    return res.status(200).json({ success: true, url: session.url });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const verifyPaymentAndCreateAppointment = async (req, res) => {
+  const user = req.user;
+  const { sessionId } = req.body;
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status !== "paid") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Payment not completed" });
+    }
+
+    // You may also add additional checks here
+
+    const metadata = session.metadata || {};
+    const doctorId = metadata.doctorId || req.body.doctorId; // fallback if metadata not used
+    const address = metadata.address || req.body.address;
+    const dateOfAppointment =
+      metadata.dateOfAppointment || req.body.dateOfAppointment;
+    const description = metadata.description || req.body.description;
+
+    const doctor = await Doctor.findByPk(doctorId);
+    if (!doctor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Doctor not found" });
+    }
+
+    const newAppointment = await Appointment.create({
+      description,
+      address,
+      dateOfAppointment,
+      doctorId,
+      status: "pending",
+      patientName: user.username,
+      userId: user.id,
+    });
+
+    return res.status(201).json({ success: true, appointment: newAppointment });
+  } catch (err) {
+    console.error("Payment verification failed:", err.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
 export const createAppointment = async (req, res) => {
   const user = req.user;
 
@@ -254,6 +348,32 @@ export const bookActivity = async (req, res) => {
     await user.addBookedActivity(activity);
 
     return res.status(200).json({ message: "Activity booked successfully" });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.status(500).json({ message: `Error: ${err.message}` });
+  }
+};
+
+export const deleteBooking = async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId);
+    const activity = await Activities.findByPk(activityId);
+
+    if (!user || !activity) {
+      return res.status(404).json({ message: "User or Activity not found" });
+    }
+
+    const alreadyBooked = await user.hasBookedActivity(activity);
+    if (!alreadyBooked) {
+      return res.status(400).json({ message: "Activity not booked" });
+    }
+
+    await user.removeBookedActivity(activity);
+
+    return res.status(200).json({ message: "Booking removed successfully" });
   } catch (err) {
     console.error(`Error: ${err.message}`);
     return res.status(500).json({ message: `Error: ${err.message}` });

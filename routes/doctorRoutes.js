@@ -6,6 +6,7 @@ import {
   acceptPendingRequest,
   rejectPendingRequest,
   readAcceptedAppointments,
+  editDoctorPrice,
 } from "../controllers/doctorController.js";
 
 import { profile } from "../controllers/doctorAuthController.js";
@@ -29,6 +30,8 @@ doctorRouter.get(
 );
 
 doctorRouter.get("/doctor/profile", authenticateDoctor, profile);
+
+doctorRouter.post("/doctor/edit_price", authenticateDoctor, editDoctorPrice);
 
 doctorRouter.post(
   "/doctor/appointments/accept/:appointmentId",

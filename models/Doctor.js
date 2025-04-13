@@ -103,6 +103,21 @@ const Doctor = sequelize.define(
       type: DataTypes.ENUM("nurse", "doctor", "caretaker"),
       defaultValue: "doctor",
     },
+
+    stripeProductId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    stripePriceId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    balance: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     tableName: "doctors",
