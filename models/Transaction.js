@@ -29,6 +29,11 @@ const Transaction = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+
+    status: {
+      type: DataTypes.ENUM("accepted", "pending", "declined"),
+      allowNull: true,
+    },
   },
   {
     tableName: "transactions",

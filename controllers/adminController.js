@@ -1,5 +1,6 @@
 import Activities from "../models/Activities.js";
 import Doctor from "../models/Doctor.js";
+import Transaction from "../models/Transaction.js";
 
 export const createActivity = async (req, res) => {
   const {
@@ -158,6 +159,65 @@ export const rejectDoctor = async (req, res) => {
     await doctor.save();
 
     return res.status(200).json({ success: true, data: doctor });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.status(500).json({ message: `Error: ${err.message}` });
+  }
+};
+
+export const readAllTransactions = async (req, res) => {
+  try {
+    const allTransactions = await Transaction.findAll();
+
+    return res.status(200).json({ success: true, data: allTransactions });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.status(500).json({ message: `Error: ${err.message}` });
+  }
+};
+
+export const acceptTransaction = async (req, res) => {
+  try {
+    const transactionId = req.params.transactionId;
+
+    const transaction = await Transaction.findOne({
+      where: { id: transactionId },
+    });
+
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
+    }
+
+    transaction.verification = "accepted";
+    await transaction.save();
+
+    return res.status(200).json({ success: true, data: transaction });
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    return res.status(500).json({ message: `Error: ${err.message}` });
+  }
+};
+
+export const rejectTransaction = async (req, res) => {
+  try {
+    const transactionId = req.params.transactionId;
+
+    const transaction = await Transaction.findOne({
+      where: { id: transactionId },
+    });
+
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
+    }
+
+    transaction.verification = "accepted";
+    await transaction.save();
+
+    return res.status(200).json({ success: true, data: transaction });
   } catch (err) {
     console.error(`Error: ${err.message}`);
     return res.status(500).json({ message: `Error: ${err.message}` });

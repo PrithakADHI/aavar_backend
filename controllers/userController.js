@@ -3,6 +3,7 @@ import Doctor from "../models/Doctor.js";
 import Activities from "../models/Activities.js";
 import Appointment from "../models/Appointment.js";
 import User from "../models/User.js";
+import Transaction from "../models/Transaction.js";
 
 import Stripe from "stripe";
 
@@ -292,6 +293,14 @@ export const verifyPaymentAndCreateAppointment = async (req, res) => {
       status: "pending",
       patientName: user.username,
       userId: user.id,
+    });
+
+    const newTransaction = await Transaction.create({
+      patientName: user.username,
+      description: description,
+      address,
+      amount: doctor.perHourPrice,
+      status: "pending",
     });
 
     return res.status(201).json({ success: true, appointment: newAppointment });

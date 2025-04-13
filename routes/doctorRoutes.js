@@ -13,6 +13,8 @@ import { profile } from "../controllers/doctorAuthController.js";
 
 import authenticateDoctor from "../middlewares/doctorAuth.js";
 
+import { readAllTransactions } from "../controllers/adminController.js";
+
 const doctorRouter = express.Router();
 
 doctorRouter.post("/doctor/vitalreport", createVitalReport);
@@ -43,5 +45,7 @@ doctorRouter.post(
   authenticateDoctor,
   rejectPendingRequest
 );
+
+doctorRouter.get("/doctor/transactions", readAllTransactions);
 
 export default doctorRouter;
